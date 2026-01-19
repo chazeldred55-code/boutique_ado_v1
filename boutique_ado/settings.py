@@ -26,6 +26,7 @@ ALLOWED_HOSTS = [
 # Application definition
 INSTALLED_APPS = [
     "home",
+    "products",
 
     # Django core apps
     "django.contrib.admin",
