@@ -14,7 +14,7 @@
 
 <div class="container-fluid">
 
-    <!-- Page header -->
+    <!-- Page Title -->
     <div class="row">
         <div class="col text-center mt-3">
             <h2 class="logo-font">Products</h2>
@@ -22,82 +22,118 @@
         </div>
     </div>
 
-    <!-- Products grid -->
+    <!-- Search term display -->
+    {% if search_term %}
+        <div class="row">
+            <div class="col text-center">
+                <p class="text-muted mb-2">
+                    Search results for: <strong>"{{ search_term }}"</strong>
+                </p>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Category filter display -->
+    {% if current_categories %}
+        <div class="row">
+            <div class="col text-center">
+                <p class="text-muted mb-2">
+                    Currently filtering by:
+                    {% for c in current_categories %}
+                        <span class="badge badge-light border">
+                            {{ c.friendly_name|default:c.name }}
+                        </span>
+                    {% endfor %}
+                </p>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Products Grid -->
     <div class="row">
         <div class="product-container col-10 offset-1">
+
             <div class="row mt-1 mb-2"></div>
 
             <div class="row">
                 {% for product in products %}
-                <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
-                    <div class="card h-100 border-0">
+                    <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
+                        <div class="card h-100 border-0">
 
-                        <a href="{% url 'product_detail' product.id %}">
-                            {% if product.image %}
-                                <img class="card-img-top img-fluid"
-                                     src="{{ product.image.url }}"
-                                     alt="{{ product.name }}">
-                            {% else %}
-                                <img class="card-img-top img-fluid"
-                                     src="{% static 'images/noimage.png' %}"
-                                     alt="{{ product.name }}">
-                            {% endif %}
-                        </a>
+                            <a href="{% url 'product_detail' product.id %}">
+                                {% if product.image %}
+                                    <img class="card-img-top img-fluid"
+                                         src="{{ product.image.url }}"
+                                         alt="{{ product.name }}">
+                                {% else %}
+                                    <img class="card-img-top img-fluid"
+                                         src="{% static 'images/noimage.png' }}"
+                                         alt="{{ product.name }}">
+                                {% endif %}
+                            </a>
 
-                        <div class="card-body pb-0">
-                            <p class="mb-0">{{ product.name }}</p>
-                        </div>
+                            <div class="card-body pb-0">
+                                <p class="mb-0">{{ product.name }}</p>
+                            </div>
 
-                        <div class="card-footer bg-white pt-0 border-0 text-left">
-                            <div class="row">
-                                <div class="col">
-                                    <p class="lead mb-0 text-left font-weight-bold">
-                                        £{{ product.price }}
-                                    </p>
+                            <div class="card-footer bg-white pt-0 border-0 text-left">
+                                <div class="row">
+                                    <div class="col">
+                                        <p class="lead mb-0 text-left font-weight-bold">
+                                            £{{ product.price }}
+                                        </p>
 
-                                    {% if product.rating %}
-                                        <small class="text-muted">
-                                            <i class="fas fa-star mr-1"></i>
-                                            {{ product.rating }} / 5
-                                        </small>
-                                    {% else %}
-                                        <small class="text-muted">No Rating</small>
-                                    {% endif %}
+                                        {% if product.rating %}
+                                            <small class="text-muted">
+                                                <i class="fas fa-star mr-1"></i>
+                                                {{ product.rating }} / 5
+                                            </small>
+                                        {% else %}
+                                            <small class="text-muted">
+                                                No Rating
+                                            </small>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
+
                         </div>
-
                     </div>
-                </div>
 
-                <!-- Responsive horizontal rules -->
-                {% if forloop.counter|divisibleby:1 %}
-                <div class="col-12 d-sm-none mb-5">
-                    <hr>
-                </div>
-                {% endif %}
+                    <!-- Responsive horizontal rules -->
+                    {% if forloop.counter|divisibleby:1 %}
+                        <div class="col-12 d-sm-none mb-5">
+                            <hr>
+                        </div>
+                    {% endif %}
 
-                {% if forloop.counter|divisibleby:2 %}
-                <div class="col-12 d-none d-sm-block d-lg-none mb-5">
-                    <hr>
-                </div>
-                {% endif %}
+                    {% if forloop.counter|divisibleby:2 %}
+                        <div class="col-12 d-none d-sm-block d-lg-none mb-5">
+                            <hr>
+                        </div>
+                    {% endif %}
 
-                {% if forloop.counter|divisibleby:3 %}
-                <div class="col-12 d-none d-lg-block d-xl-none mb-5">
-                    <hr>
-                </div>
-                {% endif %}
+                    {% if forloop.counter|divisibleby:3 %}
+                        <div class="col-12 d-none d-lg-block d-xl-none mb-5">
+                            <hr>
+                        </div>
+                    {% endif %}
 
-                {% if forloop.counter|divisibleby:4 %}
-                <div class="col-12 d-none d-xl-block mb-5">
-                    <hr>
-                </div>
-                {% endif %}
+                    {% if forloop.counter|divisibleby:4 %}
+                        <div class="col-12 d-none d-xl-block mb-5">
+                            <hr>
+                        </div>
+                    {% endif %}
 
+                {% empty %}
+                    <div class="col text-center mt-5">
+                        <p class="lead">No products found.</p>
+                    </div>
                 {% endfor %}
             </div>
+
         </div>
     </div>
+
 </div>
 {% endblock %}
