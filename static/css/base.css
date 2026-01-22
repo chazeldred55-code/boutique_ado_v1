@@ -12,10 +12,10 @@ body {
 
 /* Spacer to push content below fixed header */
 .header-container {
-    padding-top: 116px; /* mobile/tablet header height */
+    padding-top: 116px;
 }
 
-/* Full-page white background overlay for pages that need it */
+/* White overlay */
 .overlay {
     height: 100%;
     width: 100%;
@@ -26,7 +26,7 @@ body {
     z-index: -1;
 }
 
-/* from Bulma */
+/* Icons */
 .icon {
     align-items: center;
     display: inline-flex;
@@ -43,23 +43,14 @@ body {
     width: fit-content;
 }
 
-.shop-now-button {
-    background: black;
-    color: white;
-    min-width: 260px;
-}
-
+.shop-now-button,
 .btn-black {
     background: black;
     color: white;
 }
 
 .shop-now-button:hover,
-.shop-now-button:active,
-.shop-now-button:focus,
-.btn-black:hover,
-.btn-black:active,
-.btn-black:focus {
+.btn-black:hover {
     background: #222;
     color: white;
 }
@@ -72,18 +63,37 @@ body {
     border: 1px solid black !important;
 }
 
-/* -------------------------------- Media Queries */
+/* Category badges */
+.badge-white {
+    background: #fff;
+}
 
-/* Slightly larger container on xl screens */
+.category-badge > span:hover {
+    background: #212529;
+    color: #fff !important;
+}
+
+/* Back to top button */
+.btt-button {
+    height: 42px;
+    width: 42px;
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+}
+
+.btt-link {
+    cursor: pointer;
+}
+
+/* Media queries */
 @media (min-width: 1200px) {
     .container {
         max-width: 80%;
     }
 }
 
-/* Desktop header spacing */
 @media (min-width: 992px) {
-
     .fixed-top-desktop-only {
         position: fixed;
         top: 0;
@@ -93,15 +103,6 @@ body {
     }
 
     .header-container {
-        padding-top: 164px; /* desktop header height */
+        padding-top: 164px;
     }
-}
-/* Category badges (products page) */
-.badge-white {
-    background: #fff;
-}
-
-.category-badge > span:hover {
-    background: #212529;
-    color: #fff !important;
 }
