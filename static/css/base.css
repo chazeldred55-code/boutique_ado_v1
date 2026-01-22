@@ -96,3 +96,12 @@ body {
         padding-top: 164px; /* desktop header height */
     }
 }
+/* Category badges (products page) */
+.badge-white {
+    background: #fff;
+}
+
+.category-badge > span:hover {
+    background: #212529;
+    color: #fff !important;
+}
