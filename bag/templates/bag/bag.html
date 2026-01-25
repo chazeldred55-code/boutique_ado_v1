@@ -12,7 +12,7 @@
 {% block content %}
 <div class="overlay"></div>
 
-<div class="container mb-2">
+<div class="container mb-5">
     <div class="row">
         <div class="col">
             <hr>
@@ -21,20 +21,97 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col">
+    {% if bag_items %}
+        <div class="row">
+            <div class="col-12">
 
-            {% if bag_items %}
-                <p>Bag items will go here.</p>
-            {% else %}
-                <p class="lead mb-5">Your bag is empty.</p>
-                <a href="{% url 'products' %}" class="btn btn-black rounded-0">
-                    <span class="icon"><i class="fas fa-chevron-left"></i></span>
-                    <span class="text-uppercase">Keep Shopping</span>
-                </a>
-            {% endif %}
+                {% for item in bag_items %}
+                    <div class="row align-items-center py-3 border-bottom">
 
+                        <!-- Image -->
+                        <div class="col-12 col-md-2 mb-2 mb-md-0">
+                            {% if item.product.image %}
+                                <img class="img-fluid rounded"
+                                     src="{{ item.product.image.url }}"
+                                     alt="{{ item.product.name }}">
+                            {% else %}
+                                <img class="img-fluid rounded"
+                                     src="{% static 'images/noimage.png' %}"
+                                     alt="{{ item.product.name }}">
+                            {% endif %}
+                        </div>
+
+                        <!-- Product details -->
+                        <div class="col-12 col-md-4">
+                            <p class="mb-1"><strong>{{ item.product.name }}</strong></p>
+
+                            {% if item.product.category %}
+                                <p class="small text-muted mb-1">
+                                    {{ item.product.category.friendly_name|default:item.product.category.name }}
+                                </p>
+                            {% endif %}
+
+                            <p class="mb-0 text-muted small">
+                                SKU / ID: {{ item.item_id }}
+                            </p>
+                        </div>
+
+                        <!-- Price -->
+                        <div class="col-6 col-md-2 text-md-right">
+                            <p class="mb-0">£{{ item.product.price }}</p>
+                        </div>
+
+                        <!-- Quantity -->
+                        <div class="col-6 col-md-2 text-md-center">
+                            <p class="mb-0">Qty: {{ item.quantity }}</p>
+                        </div>
+
+                        <!-- Line total -->
+                        <div class="col-12 col-md-2 text-md-right mt-2 mt-md-0">
+                            <p class="mb-0 font-weight-bold">£{{ item.line_total }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+
+            </div>
         </div>
-    </div>
+
+        <!-- Totals -->
+        <div class="row">
+            <div class="col-12 col-md-6 offset-md-6 mt-4">
+                <div class="text-right">
+                    <p class="mb-1">Bag Total: <strong>£{{ total }}</strong></p>
+                    <p class="mb-1">Delivery: <strong>£{{ delivery }}</strong></p>
+                    <p class="mb-3 h5">Grand Total: <strong>£{{ grand_total }}</strong></p>
+
+                    {% if free_delivery_delta > 0 %}
+                        <p class="mb-3 text-muted small">
+                            Spend <strong>£{{ free_delivery_delta }}</strong> more to get free delivery
+                            (free over £{{ free_delivery_threshold }}).
+                        </p>
+                    {% endif %}
+
+                    <a href="{% url 'products' %}" class="btn btn-outline-black rounded-0 text-uppercase mr-2">
+                        Keep Shopping
+                    </a>
+
+                    <!-- Checkout will come later in the tutorial -->
+                    <a href="#" class="btn btn-black rounded-0 text-uppercase">
+                        Secure Checkout
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    {% else %}
+        <div class="row">
+            <div class="col">
+                <p class="lead mb-4">Your bag is empty.</p>
+                <a href="{% url 'products' %}" class="btn btn-black rounded-0 text-uppercase">
+                    Keep Shopping
+                </a>
+            </div>
+        </div>
+    {% endif %}
 </div>
 {% endblock %}
