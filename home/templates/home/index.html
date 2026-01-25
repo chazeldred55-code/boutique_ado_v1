@@ -10,19 +10,20 @@
 {% endblock %}
 
 {% block content %}
+<div class="overlay"></div>
+
 <div class="container h-100">
     <div class="row h-100">
-        <div class="col-7 col-md-6 my-auto">
+        <div class="col-12 col-md-6 my-auto">
             <h1 class="display-4 logo-font text-black">
-                The new collections are here
+                Welcome to Boutique Ado
             </h1>
-            <div class="my-5">
-                <h4>
-                    <a href="#" class="shop-now-button btn btn-lg rounded-0 text-uppercase py-3">
-                        Shop Now
-                    </a>
-                </h4>
-            </div>
+            <p class="lead text-muted">
+                Shop the latest products and special offers.
+            </p>
+            <a href="{% url 'products' %}" class="btn btn-black rounded-0 text-uppercase mt-2">
+                Shop Now
+            </a>
         </div>
     </div>
 </div>
