@@ -23,6 +23,8 @@ class Product(models.Model):
         on_delete=models.SET_NULL,
         related_name="products",
     )
+    has_sizes = models.BooleanField(default=False, blank=True)
+
     sku = models.CharField(max_length=254, null=True, blank=True)
     name = models.CharField(max_length=254)
     description = models.TextField()
