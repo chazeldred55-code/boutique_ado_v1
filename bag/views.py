@@ -48,10 +48,16 @@ def add_to_bag(request, item_id):
     else:
         if item_id in bag:
             bag[item_id] += quantity
-            messages.success(request, f"Updated {product.name} quantity to {bag[item_id]}.")
+            messages.success(
+                request,
+                f"Updated {product.name} quantity to {bag[item_id]}."
+            )
         else:
             bag[item_id] = quantity
-            messages.success(request, f"Added {product.name} to your bag.")
+            messages.success(
+                request,
+                f"Added {product.name} to your bag."
+            )
 
     request.session["bag"] = bag
     return redirect(redirect_url)
@@ -68,7 +74,7 @@ def adjust_bag(request, item_id):
 
     bag = request.session.get("bag", {})
 
-    # Sized items
+    # Products WITH sizes
     if size:
         if quantity > 0:
             bag[item_id]["items_by_size"][size] = quantity
@@ -85,14 +91,20 @@ def adjust_bag(request, item_id):
             if not bag[item_id]["items_by_size"]:
                 bag.pop(item_id, None)
 
-    # Non-sized items
+    # Products WITHOUT sizes
     else:
         if quantity > 0:
             bag[item_id] = quantity
-            messages.success(request, f"Updated {product.name} quantity to {quantity}.")
+            messages.success(
+                request,
+                f"Updated {product.name} quantity to {quantity}."
+            )
         else:
             bag.pop(item_id, None)
-            messages.success(request, f"Removed {product.name} from your bag.")
+            messages.success(
+                request,
+                f"Removed {product.name} from your bag."
+            )
 
     request.session["bag"] = bag
     return redirect(reverse("view_bag"))
@@ -102,36 +114,31 @@ def remove_from_bag(request, item_id):
     """
     Remove an item from the bag.
     If the item has sizes, remove only the specified size (POST: product_size).
-    Otherwise remove the entire item_id.
-    Designed to be called via AJAX (jQuery $.post) and return HTTP 200.
+    Otherwise remove the entire item.
+    Designed to be called via AJAX and return HTTP 200 on success.
     """
     product = get_object_or_404(Product, pk=item_id)
     bag = request.session.get("bag", {})
-
     size = request.POST.get("product_size")
 
     try:
-        # If size is provided, attempt to remove that size only
         if size:
             bag[item_id]["items_by_size"].pop(size, None)
-
-            # If no sizes left, remove the product key entirely
             if not bag[item_id]["items_by_size"]:
                 bag.pop(item_id, None)
-
             messages.success(
                 request,
                 f"Removed {product.name} size {size.upper()} from your bag."
             )
-
-        # No size provided -> remove whole item_id
         else:
             bag.pop(item_id, None)
-            messages.success(request, f"Removed {product.name} from your bag.")
+            messages.success(
+                request,
+                f"Removed {product.name} from your bag."
+            )
 
         request.session["bag"] = bag
         return HttpResponse(status=200)
 
-    except KeyError:
-        # If something unexpected is missing in the bag structure
+    except Exception:
         return HttpResponse(status=500)
