@@ -1,12 +1,19 @@
 from pathlib import Path
 import os
 from django.core.management.utils import get_random_secret_key
+from dotenv import load_dotenv
+load_dotenv()
+from decimal import Decimal
+
+
 
 # BASE DIRECTORY
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+load_dotenv(BASE_DIR / ".env")
+
 # SECURITY
-SECRET_KEY = os.environ.get("SECRET_KEY", get_random_secret_key())
+SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = True
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
@@ -86,6 +93,11 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "bag.context_processors.bag_contents",
             ],
+            # Make crispy tags available everywhere without {% load %}
+            "builtins": [
+                "crispy_forms.templatetags.crispy_forms_tags",
+                "crispy_forms.templatetags.crispy_forms_field",
+            ],
         },
     },
 ]
@@ -126,15 +138,199 @@ MEDIA_ROOT = BASE_DIR / "media"
 # DEFAULT PRIMARY KEY
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# MESSAGES
+# MESSAGES (toast styling: map Django ERROR to Bootstrap "danger")
 from django.contrib.messages import constants as messages
 
 MESSAGE_TAGS = {
     messages.ERROR: "danger",
 }
 
-# BAG / DELIVERY SETTINGS
-FREE_DELIVERY_THRESHOLD = 50
-STANDARD_DELIVERY_PERCENTAGE = 10
+# Store messages in session (matches CI walkthrough / avoids env quirks)
+MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 
-MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+# BAG / DELIVERY SETTINGS
+FREE_DELIVERY_THRESHOLD = Decimal(os.environ.get("FREE_DELIVERY_THRESHOLD", "50"))
+STANDARD_DELIVERY_PERCENTAGE = Decimal(os.environ.get("STANDARD_DELIVERY_PERCENTAGE", "10"))
+
+"""
+Django settings for boutique_ado project.
+
+A Code Institute-style settings.py that is:
+- env-driven (DEBUG, SECRET_KEY, ALLOWED_HOSTS)
+- sqlite for local dev, easy to extend later
+- configured for allauth + crispy-bootstrap4
+- static/media ready for local + deployment
+"""
+
+from pathlib import Path
+import os
+
+from django.core.management.utils import get_random_secret_key
+from dotenv import load_dotenv
+
+
+# Base directory
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load .env (local dev / deployment env vars)
+load_dotenv(BASE_DIR / ".env")
+
+
+# Security
+SECRET_KEY = os.environ.get("SECRET_KEY", get_random_secret_key())
+
+DEBUG = os.environ.get("DEBUG", "False") == "True"
+
+ALLOWED_HOSTS = os.environ.get(
+    "ALLOWED_HOSTS",
+    "localhost,127.0.0.1",
+).split(",")
+
+
+# Applications
+INSTALLED_APPS = [
+    # Django core
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.sites",
+
+    # Allauth
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+
+    # Crispy Forms
+    "crispy_forms",
+    "crispy_bootstrap4",
+
+    # Project apps
+    "products",
+    "bag",
+    "checkout",
+    "home",
+]
+
+SITE_ID = 1
+
+
+# Authentication
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
+
+ACCOUNT_AUTHENTICATION_METHOD = "username_email"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "none"
+ACCOUNT_USERNAME_REQUIRED = True  # helps avoid edge-case login issues
+
+
+# Crispy Forms
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
+CRISPY_TEMPLATE_PACK = "bootstrap4"
+
+
+# Middleware
+MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+]
+
+
+# URLs / WSGI
+ROOT_URLCONF = "boutique_ado.urls"
+WSGI_APPLICATION = "boutique_ado.wsgi.application"
+
+
+# Templates
+TEMPLATES_DIR = BASE_DIR / "templates"
+
+TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [TEMPLATES_DIR],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "bag.context_processors.bag_contents",
+            ],
+            # Make crispy tags available everywhere without {% load %}
+            "builtins": [
+                "crispy_forms.templatetags.crispy_forms_tags",
+                "crispy_forms.templatetags.crispy_forms_field",
+            ],
+        },
+    },
+]
+
+
+# Database (local default)
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
+}
+
+
+# Password validation
+AUTH_PASSWORD_VALIDATORS = [
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+]
+
+
+# Internationalization
+LANGUAGE_CODE = "en-gb"
+TIME_ZONE = os.environ.get("TIME_ZONE", "UTC")
+USE_I18N = True
+USE_TZ = True
+
+
+# Static files
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+
+# Media files
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+
+# Default primary key field type
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# Messages (toast styling: map Django ERROR to Bootstrap "danger")
+from django.contrib.messages import constants as messages  # noqa: E402
+
+MESSAGE_TAGS = {
+    messages.ERROR: "danger",
+}
+
+# Store messages in session (matches CI walkthrough / avoids env quirks)
+MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
+
+
+# Bag / delivery settings
+FREE_DELIVERY_THRESHOLD = float(os.environ.get("FREE_DELIVERY_THRESHOLD", "50"))
+STANDARD_DELIVERY_PERCENTAGE = float(os.environ.get("STANDARD_DELIVERY_PERCENTAGE", "10"))
