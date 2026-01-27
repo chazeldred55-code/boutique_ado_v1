@@ -34,7 +34,7 @@ INSTALLED_APPS = [
     # Project apps
     "products",
     "bag",
-
+    "checkout",
     "home",
 ]
 

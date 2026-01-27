@@ -1,15 +1,75 @@
 <div class="toast custom-toast rounded-0 border-top-0" data-autohide="false">
-    <div class="arrow-up arrow-danger"></div>
-    <div class="w-100 toast-capper bg-danger"></div>
+    <div class="arrow-up arrow-success"></div>
+    <div class="w-100 toast-capper bg-success"></div>
 
     <div class="toast-header bg-white text-dark">
-        <strong class="mr-auto">Error</strong>
+        <strong class="mr-auto">Success!</strong>
         <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
 
     <div class="toast-body bg-white">
-        {{ message }}
+        <!-- Original message -->
+        <div class="row">
+            <div class="col">
+                {{ message }}
+                <hr class="mt-2 mb-2">
+            </div>
+        </div>
+
+        {% if grand_total %}
+            <p class="font-weight-bold mb-1">
+                Your Bag ({{ product_count }})
+            </p>
+
+            <div class="bag-notification-wrapper">
+                {% for item in bag_items %}
+                    <div class="row">
+                        <div class="col-3 my-1">
+                            {% if item.product.image %}
+                                <img class="img-fluid rounded"
+                                     src="{{ item.product.image.url }}"
+                                     alt="{{ item.product.name }}">
+                            {% else %}
+                                <img class="img-fluid rounded"
+                                     src="{% static 'images/noimage.png' %}"
+                                     alt="{{ item.product.name }}">
+                            {% endif %}
+                        </div>
+
+                        <div class="col-9 my-1">
+                            <p class="mb-0"><strong>{{ item.product.name }}</strong></p>
+                            <p class="mb-0 small">
+                                {% if item.size %}
+                                    Size: {{ item.size|upper }} |
+                                {% endif %}
+                                Qty: {{ item.quantity }}
+                            </p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="row mt-2">
+                <div class="col">
+                    <p class="mb-1 font-weight-bold">
+                        Total{% if free_delivery_delta > 0 %} (excl. delivery){% endif %}:
+                        £{{ total|floatformat:2 }}
+                    </p>
+
+                    {% if free_delivery_delta > 0 %}
+                        <p class="mb-1 text-danger small">
+                            Spend £{{ free_delivery_delta|floatformat:2 }} more to get free delivery!
+                        </p>
+                    {% endif %}
+
+                    <a href="{% url 'view_bag' %}"
+                       class="btn btn-black btn-sm btn-block rounded-0">
+                        Go To Secure Checkout
+                    </a>
+                </div>
+            </div>
+        {% endif %}
     </div>
 </div>
