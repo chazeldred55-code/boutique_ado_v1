@@ -65,7 +65,9 @@
                     </div>
 
                     <div class="col-5 text-right">
-                        <p class="my-0 small text-muted">£{{ item.line_total|floatformat:2 }}</p>
+                        <p class="my-0 small text-muted">
+                            £{{ item.product.price|calc_subtotal:item.quantity|floatformat:2 }}
+                        </p>
                     </div>
                 </div>
             {% endfor %}
