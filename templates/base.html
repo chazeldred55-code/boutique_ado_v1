@@ -20,6 +20,7 @@
               crossorigin="anonymous">
         <link rel="stylesheet" href="{% static 'css/base.css' %}">
     {% endblock %}
+
     <link rel="icon" href="{% static 'favicon.ico' %}">
 
     {% block extracss %}{% endblock %}
@@ -73,7 +74,7 @@
     {% block content %}{% endblock %}
 </main>
 
-<!-- TOASTS -->
+<!-- TOAST MESSAGES -->
 {% if messages %}
     <div class="message-container">
         {% for message in messages %}
@@ -97,6 +98,9 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
+
+    <!-- Stripe JS (required globally for Stripe Elements) -->
+    <script src="https://js.stripe.com/v3/"></script>
 {% endblock %}
 
 <!-- POSTLOAD JS -->
