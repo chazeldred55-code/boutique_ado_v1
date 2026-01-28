@@ -6,6 +6,10 @@ from products.models import Product
 
 
 def bag_contents(request):
+    """
+    Makes bag contents available across all templates via context processors.
+    Provides bag_items, totals, delivery, and grand_total.
+    """
     bag_items = []
     total = Decimal("0.00")
     product_count = 0
@@ -22,34 +26,30 @@ def bag_contents(request):
             total += line_total
             product_count += quantity
 
-            bag_items.append(
-                {
-                    "item_id": item_id,
-                    "quantity": quantity,
-                    "product": product,
-                    "line_total": line_total,
-                }
-            )
+            bag_items.append({
+                "item_id": item_id,
+                "quantity": quantity,
+                "product": product,
+                "line_total": line_total,
+            })
 
         # Sizes: item_data is a dict of items_by_size
         else:
-            for size, quantity in item_data["items_by_size"].items():
+            for size, quantity in item_data.get("items_by_size", {}).items():
                 line_total = product.price * quantity
 
                 total += line_total
                 product_count += quantity
 
-                bag_items.append(
-                    {
-                        "item_id": item_id,
-                        "quantity": quantity,
-                        "product": product,
-                        "size": size,
-                        "line_total": line_total,
-                    }
-                )
+                bag_items.append({
+                    "item_id": item_id,
+                    "quantity": quantity,
+                    "product": product,
+                    "size": size,
+                    "line_total": line_total,
+                })
 
-    # Cast settings values safely (works whether they are float, int, or Decimal)
+    # Safely cast settings values to Decimal (handles float/int/str)
     free_delivery_threshold = Decimal(str(settings.FREE_DELIVERY_THRESHOLD))
     standard_delivery_percentage = Decimal(str(settings.STANDARD_DELIVERY_PERCENTAGE))
 
@@ -62,7 +62,7 @@ def bag_contents(request):
 
     grand_total = total + delivery
 
-    return {
+    context = {
         "bag_items": bag_items,
         "total": total,
         "product_count": product_count,
@@ -71,3 +71,5 @@ def bag_contents(request):
         "free_delivery_threshold": free_delivery_threshold,
         "grand_total": grand_total,
     }
+
+    return context
