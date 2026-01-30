@@ -1,13 +1,14 @@
 /* global Stripe */
 
 (function () {
-  // --- Safe guards ---
+  // --- DOM ---
   const pkEl = document.getElementById("id_stripe_public_key");
   const csEl = document.getElementById("id_client_secret");
   const form = document.getElementById("payment-form");
   const cardMount = document.getElementById("card-element");
   const errorDiv = document.getElementById("card-errors");
   const submitButton = document.getElementById("submit-button");
+  const overlay = document.getElementById("loading-overlay");
 
   if (!pkEl || !csEl || !form) {
     console.warn("Stripe setup missing: key/secret/form not found.");
@@ -20,6 +21,7 @@
     return;
   }
 
+  // --- Read JSON from json_script ---
   let stripePublicKey;
   let clientSecret;
 
@@ -38,7 +40,7 @@
     return;
   }
 
-  // --- Stripe Elements setup ---
+  // --- Stripe Elements ---
   const stripe = Stripe(stripePublicKey);
   const elements = stripe.elements();
 
@@ -49,9 +51,7 @@
       fontSize: "16px",
       "::placeholder": { color: "#aab7c4" },
     },
-    invalid: {
-      color: "#dc3545",
-    },
+    invalid: { color: "#dc3545" },
   };
 
   const card = elements.create("card", { style });
@@ -62,20 +62,19 @@
     errorDiv.textContent = event.error ? event.error.message : "";
   });
 
-  // Helpers
+  // --- helpers ---
   function getFieldValue(id) {
     const el = document.getElementById(id);
-    if (!el) return "";
-    return (el.value || "").trim();
+    return el && el.value ? String(el.value).trim() : "";
   }
 
   function normalizeCountryToISO2(rawCountry) {
     const v = (rawCountry || "").trim();
 
-    // If your field already uses ISO-2 codes, just return it.
+    // If already ISO-2
     if (/^[A-Za-z]{2}$/.test(v)) return v.toUpperCase();
 
-    // Common label -> ISO-2 mappings (covers your current error)
+    // Common label -> ISO-2 mappings
     const map = {
       "United Kingdom": "GB",
       "UK": "GB",
@@ -86,7 +85,19 @@
       "Northern Ireland": "GB",
     };
 
-    return map[v] || v; // If it's something else, return as-is
+    return map[v] || v;
+  }
+
+  function showOverlay() {
+    if (!overlay) return;
+    overlay.classList.remove("d-none");
+    overlay.setAttribute("aria-hidden", "false");
+  }
+
+  function hideOverlay() {
+    if (!overlay) return;
+    overlay.classList.add("d-none");
+    overlay.setAttribute("aria-hidden", "true");
   }
 
   function setProcessing(isProcessing) {
@@ -94,24 +105,23 @@
       submitButton.disabled = isProcessing;
       submitButton.classList.toggle("disabled", isProcessing);
     }
-
-    // Disable card element too (prevents multiple submissions)
     card.update({ disabled: isProcessing });
-
     form.dataset.processing = isProcessing ? "1" : "0";
   }
 
   let processing = false;
 
+  // --- submit handler ---
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    if (processing) return; // prevent double submits
+    if (processing) return;
     processing = true;
+
     setProcessing(true);
+    showOverlay();
     if (errorDiv) errorDiv.textContent = "";
 
-    // Stripe requires ISO-2 country code (e.g. GB), not "United Kingdom"
     const rawCountry = getFieldValue("id_country");
     const countryCode = normalizeCountryToISO2(rawCountry);
 
@@ -141,13 +151,14 @@
         if (errorDiv) errorDiv.textContent = result.error.message || "Payment failed. Please try again.";
         processing = false;
         setProcessing(false);
+        hideOverlay();
         return;
       }
 
       const pi = result.paymentIntent;
 
       if (pi && pi.status === "succeeded") {
-        // Add PID hidden input (so Django can store it on the Order)
+        // Ensure PID is set so your Django view can store it
         let pidInput = document.getElementById("id_stripe_pid");
         if (!pidInput) {
           pidInput = document.createElement("input");
@@ -158,19 +169,21 @@
         }
         pidInput.value = pi.id;
 
+        // Leave overlay ON (redirect happens immediately after form POST)
         form.submit();
         return;
       }
 
-      // Any other status:
       if (errorDiv) errorDiv.textContent = "Payment not completed. Please try again.";
       processing = false;
       setProcessing(false);
+      hideOverlay();
     } catch (err) {
       console.warn("Stripe confirmCardPayment threw:", err);
       if (errorDiv) errorDiv.textContent = "Payment failed. Please try again.";
       processing = false;
       setProcessing(false);
+      hideOverlay();
     }
   });
 })();

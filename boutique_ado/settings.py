@@ -11,6 +11,9 @@ from decimal import Decimal
 from django.core.management.utils import get_random_secret_key
 from dotenv import load_dotenv
 
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+DEFAULT_FROM_EMAIL = "noreply@boutiqueado.com"
+
 
 # BASE DIRECTORY
 BASE_DIR = Path(__file__).resolve().parent.parent
